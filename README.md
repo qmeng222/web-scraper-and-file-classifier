@@ -1,6 +1,6 @@
 # Web Scraper & File Classifier
 
-## Task:
+## Tasks:
 
 Write a program to download ALL PDF and text files from a specified website in both Python and Javascript.
 
@@ -17,8 +17,12 @@ Write a program to download ALL PDF and text files from a specified website in b
 2. Upgrade the pip package manager to the latest version within the current Python environment: `python -m pip install --upgrade pip`
 3. Create the `requirements.txt` file after installing dependencies and libraries: `pip freeze > requirements.txt`
 
-## References:
+## Result screenshots:
+
+![python result](images/py_res.png)
+![JavaScript result](images/js_res.png)
+
+## Resources:
 
 1. [Python Package Index](https://pypi.org/)
 2. [Hugging Face Models](https://huggingface.co/models)
-3.
