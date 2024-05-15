@@ -19,8 +19,17 @@ Write a program to download ALL PDF and text files from a specified website in b
 
 ## Result screenshots:
 
-![python result](images/py_res.png)
-![JavaScript result](images/js_res.png)
+- Answers overview:
+  ![My answers](images/my_answers.png)
+
+- Python result:
+  ![Python result](images/py_res.png)
+
+- Javascript result:
+  ![JavaScript result](images/js_res.png)
+
+- File classifier result:
+  ![File classifier result](images/classification_res.png)
 
 ## Resources:
 
