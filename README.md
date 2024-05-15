@@ -35,3 +35,4 @@ Write a program to download ALL PDF and text files from a specified website in b
 
 1. [Python Package Index](https://pypi.org/)
 2. [Hugging Face Models](https://huggingface.co/models)
+3. [Text files - different formats and what they’re used for.](https://www.adobe.com/uk/acrobat/resources/document-files/text-files.html)

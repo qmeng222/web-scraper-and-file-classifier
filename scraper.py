@@ -1,7 +1,9 @@
 # %%
 import requests
 from bs4 import BeautifulSoup  # for scraping
+import re
 import os
+from urllib.parse import urlparse
 from transformers import pipeline
 from collections import Counter
 
@@ -42,9 +44,12 @@ html_content = response.content
 
 # %% find links to the files (PDF and TXT):
 soup = BeautifulSoup(html_content, "html.parser")
-links = soup.find_all(
-    "a", href=lambda href: href and (href.endswith(".pdf") or href.endswith(".txt"))
-)
+
+# IMPROVEMENT 1: By employing a regular expression with re.compile(), the find_all() function can now capture links that end with a query attribute (e.g., '?mlg=0') alongside those ending with '.pdf' or '.txt'. This ensures that URLs like 'https://www.supermicro.com/solutions/Product_Guide_RedHat-SMCI.pdf?mlg=0' are not overlooked.
+links = soup.find_all("a", href=re.compile(r".*?\.(pdf|txt)", re.IGNORECASE))
+# links = soup.find_all(
+#     "a", href=lambda href: href and (href.endswith(".pdf") or href.endswith(".txt"))
+# )
 # print("👀", links)
 
 
@@ -52,16 +57,18 @@ links = soup.find_all(
 unique_files = set()
 
 for link in links:
-    file_url = link.get("href")  # eg: /white_paper/eGuide_Data_Center_Refresh.pdf
-    # print("------------")
+    file_url = link.get("href") # eg: /white_paper/eGuide_Data_Center_Refresh.pdf
+    print("------------")
     # print("1️⃣", file_url)
 
-    if file_url.startswith("/"):
-        # eg: https://www.supermicro.com/white_paper/eGuide_Data_Center_Refresh.pdf
-        file_url = url + file_url
-        # print("2️⃣", file_url)
+    # construct the absolute url if it's relative:
+    if not file_url.startswith("http"): # http or https
+        file_url = url + file_url # eg: https://www.supermicro.com/white_paper/eGuide_Data_Center_Refresh.pdf
+    print("2️⃣", file_url) # print all absolute file_urls
 
-    file_name = os.path.basename(file_url)  # get the base name in each path
+    # IMPROVEMENT 2: break down the url into its components & fetch the file name without the query attribute
+    parsed_file_url = urlparse(file_url) # ParseResult(scheme='https', netloc='www.supermicro.com', path='/solutions/Product_Guide_RedHat-SMCI.pdf', params='', query='mlg=0', fragment='')
+    file_name = os.path.basename(parsed_file_url.path)
     file_path = os.path.join(download_dir, file_name)
     # print(f"3️⃣ {file_name} @ {file_path}")
 
@@ -72,19 +79,23 @@ for link in links:
             with open(file_path, "wb") as file:
                 file.write(file_response.content)
             unique_files.add(file_name)
-            # print(f"🎉 {file_name} was downloaded!")  # confirmation msg
+            print(f"✅ The file {file_name} was successfully downloaded!")  # confirmation msg
 
             # file classifier:
             category = classifier(file_url, candidate_labels)["labels"][0]
-            print(f"🤴 {file_name} is classified as {category}")
+            print(f"🎉 The file {file_name} has been classified as a '{category}'. ")
             category_counts[category] += 1
             # print(f"📦 updated category_counts: {category_counts}")
 
         except requests.exceptions.RequestException as e:
             print(f"💥 Error downloading {file_name}: {e}")
 
+    else:
+        print("❌ duplicate files")
 
-# %% calculate the total num of files downloaded:
+
+# %% result display:
+# calculate the total num of files downloaded:
 num_of_files = len(unique_files)
 print(f"Total num of files downloaded: {num_of_files}")
 
@@ -93,8 +104,7 @@ files_list = list(unique_files)
 for i, f in enumerate(files_list):
     print(f"File {i+1}: {f}")
 
-
-# %% categorize the documents into predefined groupings with the per-category file counts:
+# %% documents into predefined groupings with the per-category file counts:
 for k, v in category_counts.items():
     print(f"{v} files are classfied as {k}")
 
